@@ -13,20 +13,74 @@ document.addEventListener("DOMContentLoaded", () => {
       // Clear loading message
       activitiesList.innerHTML = "";
 
+      // Clear select options (preserve placeholder)
+      activitySelect.innerHTML = '<option value="">-- Select an activity --</option>';
+
       // Populate activities list
       Object.entries(activities).forEach(([name, details]) => {
         const activityCard = document.createElement("div");
         activityCard.className = "activity-card";
 
+        // Title
+        const title = document.createElement("h4");
+        title.textContent = name;
+        activityCard.appendChild(title);
+
+        // Description
+        const desc = document.createElement("p");
+        desc.textContent = details.description;
+        activityCard.appendChild(desc);
+
+        // Schedule
+        const sched = document.createElement("p");
+        sched.innerHTML = `<strong>Schedule:</strong> ${details.schedule}`;
+        activityCard.appendChild(sched);
+
+        // Availability
         const spotsLeft = details.max_participants - details.participants.length;
+        const avail = document.createElement("p");
+        avail.innerHTML = `<strong>Availability:</strong> ${spotsLeft} spots left`;
+        activityCard.appendChild(avail);
 
-        activityCard.innerHTML = `
-          <h4>${name}</h4>
-          <p>${details.description}</p>
-          <p><strong>Schedule:</strong> ${details.schedule}</p>
-          <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
-        `;
+        // Participants section
+        const participantsSection = document.createElement("div");
+        participantsSection.className = "participants-section";
 
+        const participantsHeader = document.createElement("h5");
+        participantsHeader.textContent = "Participants";
+        participantsSection.appendChild(participantsHeader);
+
+        if (details.participants && details.participants.length > 0) {
+          const ul = document.createElement("ul");
+          ul.className = "participants-list";
+
+          details.participants.forEach((p) => {
+            const li = document.createElement("li");
+
+            const badge = document.createElement("span");
+            badge.className = "participant-badge";
+            // simple initials from email or name
+            const initials = (p.split("@")[0].match(/\b\w/g) || []).slice(0,2).join('').toUpperCase() || p.charAt(0).toUpperCase();
+            badge.textContent = initials;
+
+            const text = document.createElement("span");
+            text.textContent = p;
+
+            li.appendChild(badge);
+            li.appendChild(text);
+            ul.appendChild(li);
+          });
+
+          participantsSection.appendChild(ul);
+        } else {
+          const none = document.createElement("p");
+          none.style.margin = "0";
+          none.style.color = "#666";
+          none.textContent = "No participants yet — be the first!";
+          participantsSection.appendChild(none);
+        }
+
+        activityCard.appendChild(participantsSection);
         activitiesList.appendChild(activityCard);
 
         // Add option to select dropdown
@@ -62,6 +116,8 @@ document.addEventListener("DOMContentLoaded", () => {
         messageDiv.textContent = result.message;
         messageDiv.className = "success";
         signupForm.reset();
+        // Refresh activities to reflect new participant
+        fetchActivities();
       } else {
         messageDiv.textContent = result.detail || "An error occurred";
         messageDiv.className = "error";
