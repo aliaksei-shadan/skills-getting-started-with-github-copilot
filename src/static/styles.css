@@ -156,6 +156,11 @@ footer {
   color: #333;
 }
 
+.activity-card .participants-section h5 span {
+  font-size: 15px;
+  vertical-align: middle;
+}
+
 .activity-card .participants-list {
   list-style: disc;
   padding-left: 20px;

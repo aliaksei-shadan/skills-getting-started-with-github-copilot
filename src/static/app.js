@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
         participantsSection.className = "participants-section";
 
         const participantsHeader = document.createElement("h5");
-        participantsHeader.textContent = "Participants";
+        participantsHeader.innerHTML = '<span style="margin-right:6px;vertical-align:middle;">👥</span>Participants';
         participantsSection.appendChild(participantsHeader);
 
         if (details.participants && details.participants.length > 0) {
