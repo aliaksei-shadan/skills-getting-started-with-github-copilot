@@ -56,6 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
           details.participants.forEach((p) => {
             const li = document.createElement("li");
+            li.style.listStyleType = "none"; // скрыть маркеры
 
             const badge = document.createElement("span");
             badge.className = "participant-badge";
@@ -66,8 +67,27 @@ document.addEventListener("DOMContentLoaded", () => {
             const text = document.createElement("span");
             text.textContent = p;
 
+            // Иконка удаления
+            const deleteIcon = document.createElement("span");
+            deleteIcon.className = "delete-icon";
+            deleteIcon.title = "Удалить участника";
+            deleteIcon.innerHTML = "&#128465;"; // Unicode корзины
+            deleteIcon.style.cursor = "pointer";
+            deleteIcon.style.marginLeft = "8px";
+            deleteIcon.onclick = async () => {
+              if (confirm(`Удалить участника ${p}?`)) {
+                const response = await fetch(`/activities/${encodeURIComponent(name)}/unregister?email=${encodeURIComponent(p)}`, { method: "POST" });
+                if (response.ok) {
+                  fetchActivities();
+                } else {
+                  alert("Ошибка удаления участника");
+                }
+              }
+            };
+
             li.appendChild(badge);
             li.appendChild(text);
+            li.appendChild(deleteIcon);
             ul.appendChild(li);
           });
 
@@ -116,8 +136,11 @@ document.addEventListener("DOMContentLoaded", () => {
         messageDiv.textContent = result.message;
         messageDiv.className = "success";
         signupForm.reset();
-        // Refresh activities to reflect new participant
-        fetchActivities();
+        // Отключаем кнопку на время обновления
+        const submitBtn = signupForm.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        await fetchActivities();
+        submitBtn.disabled = false;
       } else {
         messageDiv.textContent = result.detail || "An error occurred";
         messageDiv.className = "error";
